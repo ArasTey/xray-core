@@ -86,4 +86,8 @@ message Config {
   SocketConfig ech_socket_settings = 21;
 
   repeated bytes pinned_peer_cert_sha256 = 22;
+
+  // Restored compatibility field: skip certificate verification entirely
+  // (legacy "allowInsecure" behavior from pre-26 cores).
+  bool insecure_skip_verify = 23;
 }

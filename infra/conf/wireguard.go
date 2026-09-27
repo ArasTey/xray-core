@@ -21,6 +21,17 @@ type WireGuardPeerConfig struct {
 	KeepAlive    uint32   `json:"keepAlive"`
 	AllowedIPs   []string `json:"allowedIPs,omitempty"`
 
+	// AmneziaWG obfuscation parameters.
+	JunkPacketCount           uint32   `json:"junkPacketCount,omitempty"`
+	JunkPacketMinSize         uint32   `json:"junkPacketMinSize,omitempty"`
+	JunkPacketMaxSize         uint32   `json:"junkPacketMaxSize,omitempty"`
+	InitPacketJunkSize        uint32   `json:"initPacketJunkSize,omitempty"`
+	ResponsePacketJunkSize    uint32   `json:"responsePacketJunkSize,omitempty"`
+	InitPacketJunkHeader      []uint32 `json:"initPacketJunkHeader,omitempty"`
+	ResponsePacketJunkHeader  []uint32 `json:"responsePacketJunkHeader,omitempty"`
+	CookiePacketJunkHeader    []uint32 `json:"cookiePacketJunkHeader,omitempty"`
+	TransportPacketJunkHeader []uint32 `json:"transportPacketJunkHeader,omitempty"`
+
 	Level uint32 `json:"level"`
 	Email string `json:"email"`
 }
@@ -47,6 +58,16 @@ func (c *WireGuardPeerConfig) Build() (*wireguard.PeerConfig, error) {
 	if c.KeepAlive != 0 {
 		config.KeepAlive = strconv.FormatUint(uint64(c.KeepAlive), 10)
 	}
+	// AmneziaWG junk packet params.
+	config.JunkPacketCount = c.JunkPacketCount
+	config.JunkPacketMinSize = c.JunkPacketMinSize
+	config.JunkPacketMaxSize = c.JunkPacketMaxSize
+	config.InitPacketJunkSize = c.InitPacketJunkSize
+	config.ResponsePacketJunkSize = c.ResponsePacketJunkSize
+	config.InitPacketJunkHeader = c.InitPacketJunkHeader
+	config.ResponsePacketJunkHeader = c.ResponsePacketJunkHeader
+	config.CookiePacketJunkHeader = c.CookiePacketJunkHeader
+	config.TransportPacketJunkHeader = c.TransportPacketJunkHeader
 	if c.AllowedIPs == nil {
 		config.AllowedIps = []string{"0.0.0.0/0", "::0/0"}
 	} else {
