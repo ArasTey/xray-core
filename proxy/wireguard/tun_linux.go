@@ -17,7 +17,7 @@ import (
 	"github.com/vishvananda/netlink"
 	"github.com/xtls/xray-core/common/errors"
 	xnet "github.com/xtls/xray-core/common/net"
-	"golang.zx2c4.com/wireguard/tun"
+	"github.com/amnezia-vpn/amneziawg-go/v3/tun"
 )
 
 var tableIndex atomic.Uint32

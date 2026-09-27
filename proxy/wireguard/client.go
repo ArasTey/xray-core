@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"net/netip"
 	"reflect"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"golang.zx2c4.com/wireguard/tun"
+	"github.com/amnezia-vpn/amneziawg-go/v3/tun"
 
 	"github.com/xtls/xray-core/common"
 	"github.com/xtls/xray-core/common/buf"
@@ -27,7 +28,8 @@ import (
 	"github.com/xtls/xray-core/features/stats"
 	"github.com/xtls/xray-core/transport"
 	"github.com/xtls/xray-core/transport/internet"
-	"golang.zx2c4.com/wireguard/device"
+	"github.com/xtls/xray-core/transport/internet/finalmask"
+	"github.com/amnezia-vpn/amneziawg-go/v3/device"
 )
 
 type Handler struct {
@@ -312,6 +314,50 @@ func (h *Handler) init(ctx context.Context) error {
 	bind.setDownFunc(dev.Down)
 	var cfg strings.Builder
 	cfg.WriteString("private_key=" + h.conf.SecretKey + "\n")
+	// AmneziaWG obfuscation parameters are DEVICE-level in the AWG UAPI and
+	// MUST come before the first "public_key=" line — after it the parser is
+	// in peer context and rejects them ("invalid UAPI peer key"). AWG
+	// profiles have exactly one peer, so read params from peers[0] and emit
+	// them here. Plain WireGuard profiles leave them zero → nothing written.
+	writeAWGParam := func(key string, v uint32) {
+		if v > 0 {
+			cfg.WriteString(key + "=" + strconv.FormatUint(uint64(v), 10) + "\n")
+		}
+	}
+	writeAWGRanges := func(key string, values []uint32) {
+		if len(values) == 0 {
+			return
+		}
+		parts := make([]string, 0, len(values))
+		for _, v := range values {
+			parts = append(parts, strconv.FormatUint(uint64(v), 10))
+		}
+		cfg.WriteString(key + "=" + strings.Join(parts, ",") + "\n")
+	}
+	if len(h.conf.Peers) > 0 {
+		awgPeer := h.conf.Peers[0]
+		writeAWGParam("jc", awgPeer.GetJunkPacketCount())
+		writeAWGParam("jmin", awgPeer.GetJunkPacketMinSize())
+		writeAWGParam("jmax", awgPeer.GetJunkPacketMaxSize())
+		writeAWGParam("s1", awgPeer.GetInitPacketJunkSize())
+		writeAWGParam("s2", awgPeer.GetResponsePacketJunkSize())
+		writeAWGRanges("h1", awgPeer.GetInitPacketJunkHeader())
+		writeAWGRanges("h2", awgPeer.GetResponsePacketJunkHeader())
+		writeAWGRanges("h3", awgPeer.GetCookiePacketJunkHeader())
+		writeAWGRanges("h4", awgPeer.GetTransportPacketJunkHeader())
+		// Mimic packets: a bad spec is dropped rather than failing the whole tunnel,
+		// because a malformed i1 only costs the decoy, not the handshake.
+		writeAWGStr := func(key, v string) {
+			if v != "" {
+				cfg.WriteString(key + "=" + v + "\n")
+			}
+		}
+		writeAWGStr("i1", awgPeer.GetMimicPacket_1())
+		writeAWGStr("i2", awgPeer.GetMimicPacket_2())
+		writeAWGStr("i3", awgPeer.GetMimicPacket_3())
+		writeAWGStr("i4", awgPeer.GetMimicPacket_4())
+		writeAWGStr("i5", awgPeer.GetMimicPacket_5())
+	}
 	for _, peer := range h.conf.Peers {
 		cfg.WriteString("public_key=" + peer.PublicKey + "\n")
 		if peer.PreSharedKey != "" {
