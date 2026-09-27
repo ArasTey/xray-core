@@ -42,6 +42,8 @@ func (p TransportProtocol) Build() (string, error) {
 		return "masque", nil
 	case "xdrive":
 		return "xdrive", nil
+	case "anytls":
+		return "anytls", nil
 	default:
 		return "", errors.New("Config: unknown transport protocol: ", p)
 	}
@@ -67,6 +69,7 @@ type StreamConfig struct {
 	HysteriaSettings    *HysteriaConfig    `json:"hysteriaSettings"`
 	MASQUESettings      *MasqueConfig      `json:"masqueSettings"`
 	XDRIVESettings      *XDriveConfig      `json:"xdriveSettings"`
+	AnyTLSSettings      *AnyTLSConfig      `json:"anytlsSettings"`
 	SocketSettings      *SocketConfig      `json:"sockopt"`
 }
 
@@ -229,6 +232,16 @@ func (c *StreamConfig) Build() (*internet.StreamConfig, error) {
 		config.TransportSettings = append(config.TransportSettings, &internet.TransportConfig{
 			ProtocolName: "xdrive",
 			Settings:     serial.ToTypedMessage(xs),
+		})
+	}
+	if c.AnyTLSSettings != nil {
+		as, err := c.AnyTLSSettings.Build()
+		if err != nil {
+			return nil, errors.New("Failed to build AnyTLS config.").Base(err)
+		}
+		config.TransportSettings = append(config.TransportSettings, &internet.TransportConfig{
+			ProtocolName: "anytls",
+			Settings:     serial.ToTypedMessage(as),
 		})
 	}
 	if c.SocketSettings != nil {
