@@ -22,9 +22,7 @@ import (
 	"time"
 
 	xnet "github.com/xtls/xray-core/common/net"
-	"github.com/xtls/xray-core/transport/internet"
 	"github.com/amnezia-vpn/amneziawg-go/v3/tun"
-
 
 	"golang.org/x/net/dns/dnsmessage"
 	"gvisor.dev/gvisor/pkg/buffer"

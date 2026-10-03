@@ -28,7 +28,6 @@ import (
 	"github.com/xtls/xray-core/features/stats"
 	"github.com/xtls/xray-core/transport"
 	"github.com/xtls/xray-core/transport/internet"
-	"github.com/xtls/xray-core/transport/internet/finalmask"
 	"github.com/amnezia-vpn/amneziawg-go/v3/device"
 )
 
@@ -334,6 +333,11 @@ func (h *Handler) init(ctx context.Context) error {
 		}
 		cfg.WriteString(key + "=" + strings.Join(parts, ",") + "\n")
 	}
+	writeAWGStr := func(key, v string) {
+		if v != "" {
+			cfg.WriteString(key + "=" + v + "\n")
+		}
+	}
 	if len(h.conf.Peers) > 0 {
 		awgPeer := h.conf.Peers[0]
 		writeAWGParam("jc", awgPeer.GetJunkPacketCount())
@@ -347,11 +351,6 @@ func (h *Handler) init(ctx context.Context) error {
 		writeAWGRanges("h4", awgPeer.GetTransportPacketJunkHeader())
 		// Mimic packets: a bad spec is dropped rather than failing the whole tunnel,
 		// because a malformed i1 only costs the decoy, not the handshake.
-		writeAWGStr := func(key, v string) {
-			if v != "" {
-				cfg.WriteString(key + "=" + v + "\n")
-			}
-		}
 		writeAWGStr("i1", awgPeer.GetMimicPacket_1())
 		writeAWGStr("i2", awgPeer.GetMimicPacket_2())
 		writeAWGStr("i3", awgPeer.GetMimicPacket_3())
