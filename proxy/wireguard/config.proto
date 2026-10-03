@@ -24,6 +24,17 @@ message PeerConfig {
   repeated uint32 response_packet_junk_header = 12;
   repeated uint32 cookie_packet_junk_header = 13;
   repeated uint32 transport_packet_junk_header = 14;
+  // Mimic packets: fixed-shape decoys sent ahead of every handshake initiation, so
+  // the first bytes on the wire belong to a protocol that is not WireGuard. The
+  // value is an amneziawg obfuscation spec — "<b hex>" for literal bytes, "<t>" for
+  // a 4-byte timestamp, "<dz N>" for an N-byte size field, plus r/rc/rd fillers —
+  // e.g. "<b 4f5054494f4e73207369702d3a2e2e>" renders as "OPTIONS sip:..".
+  // Device-level in the AWG UAPI, exactly like the junk params above.
+  string mimic_packet_1 = 15;
+  string mimic_packet_2 = 16;
+  string mimic_packet_3 = 17;
+  string mimic_packet_4 = 18;
+  string mimic_packet_5 = 19;
 }
 
 message DeviceConfig {
