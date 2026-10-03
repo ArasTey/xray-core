@@ -331,6 +331,11 @@ func (h *Handler) init(ctx context.Context) error {
 		}
 		cfg.WriteString(key + "=" + strings.Join(parts, ",") + "\n")
 	}
+	writeAWGStr := func(key, v string) {
+		if v != "" {
+			cfg.WriteString(key + "=" + v + "\n")
+		}
+	}
 	if len(h.conf.Peers) > 0 {
 		awgPeer := h.conf.Peers[0]
 		writeAWGParam("jc", awgPeer.GetJunkPacketCount())
@@ -342,6 +347,13 @@ func (h *Handler) init(ctx context.Context) error {
 		writeAWGRanges("h2", awgPeer.GetResponsePacketJunkHeader())
 		writeAWGRanges("h3", awgPeer.GetCookiePacketJunkHeader())
 		writeAWGRanges("h4", awgPeer.GetTransportPacketJunkHeader())
+		// Mimic packets: a bad spec is dropped rather than failing the whole tunnel,
+		// because a malformed i1 only costs the decoy, not the handshake.
+		writeAWGStr("i1", awgPeer.GetMimicPacket_1())
+		writeAWGStr("i2", awgPeer.GetMimicPacket_2())
+		writeAWGStr("i3", awgPeer.GetMimicPacket_3())
+		writeAWGStr("i4", awgPeer.GetMimicPacket_4())
+		writeAWGStr("i5", awgPeer.GetMimicPacket_5())
 	}
 	for _, peer := range h.conf.Peers {
 		cfg.WriteString("public_key=" + peer.PublicKey + "\n")
