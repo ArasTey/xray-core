@@ -32,6 +32,15 @@ type WireGuardPeerConfig struct {
 	CookiePacketJunkHeader    []uint32 `json:"cookiePacketJunkHeader,omitempty"`
 	TransportPacketJunkHeader []uint32 `json:"transportPacketJunkHeader,omitempty"`
 
+	// Mimic packets: the decoys sent ahead of every handshake initiation, so
+	// the first bytes on the wire belong to another protocol. Without these
+	// fields the values never reach the proto and the core writes no i1..i5.
+	MimicPacket1 string `json:"mimicPacket1,omitempty"`
+	MimicPacket2 string `json:"mimicPacket2,omitempty"`
+	MimicPacket3 string `json:"mimicPacket3,omitempty"`
+	MimicPacket4 string `json:"mimicPacket4,omitempty"`
+	MimicPacket5 string `json:"mimicPacket5,omitempty"`
+
 	Level uint32 `json:"level"`
 	Email string `json:"email"`
 }
@@ -68,6 +77,12 @@ func (c *WireGuardPeerConfig) Build() (*wireguard.PeerConfig, error) {
 	config.ResponsePacketJunkHeader = c.ResponsePacketJunkHeader
 	config.CookiePacketJunkHeader = c.CookiePacketJunkHeader
 	config.TransportPacketJunkHeader = c.TransportPacketJunkHeader
+	// Mimic packets.
+	config.MimicPacket_1 = c.MimicPacket1
+	config.MimicPacket_2 = c.MimicPacket2
+	config.MimicPacket_3 = c.MimicPacket3
+	config.MimicPacket_4 = c.MimicPacket4
+	config.MimicPacket_5 = c.MimicPacket5
 	if c.AllowedIPs == nil {
 		config.AllowedIps = []string{"0.0.0.0/0", "::0/0"}
 	} else {
