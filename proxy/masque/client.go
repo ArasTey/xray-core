@@ -327,7 +327,7 @@ func newTunnel(conn stat.Connection, local []netip.Addr, remoteDNS []netip.Addr,
 		dns = remoteDNS
 	}
 
-	dev, tnet, err := wireguard.CreateNetTUN(local, dns, masque.MinPacketSize, nil)
+	dev, tnet, _, err := wireguard.CreateNetTUN(local, dns, masque.MinPacketSize, false)
 	if err != nil {
 		return nil, err
 	}
