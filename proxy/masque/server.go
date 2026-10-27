@@ -182,7 +182,7 @@ func NewServer(ctx context.Context, config *ServerConfig) (*Server, error) {
 	if content := session.ContentFromContext(ctx); content != nil {
 		s.sniffing = content.SniffingRequest
 	}
-	dev, _, err := wireguard.CreateNetTUN(local, nil, mtu, s)
+	dev, _, _, err := wireguard.CreateNetTUN(local, nil, mtu, false)
 	if err != nil {
 		return nil, err
 	}
