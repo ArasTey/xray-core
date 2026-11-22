@@ -21,6 +21,26 @@ type WireGuardPeerConfig struct {
 	KeepAlive    uint32   `json:"keepAlive"`
 	AllowedIPs   []string `json:"allowedIPs,omitempty"`
 
+	// AmneziaWG obfuscation parameters.
+	JunkPacketCount           uint32   `json:"junkPacketCount,omitempty"`
+	JunkPacketMinSize         uint32   `json:"junkPacketMinSize,omitempty"`
+	JunkPacketMaxSize         uint32   `json:"junkPacketMaxSize,omitempty"`
+	InitPacketJunkSize        uint32   `json:"initPacketJunkSize,omitempty"`
+	ResponsePacketJunkSize    uint32   `json:"responsePacketJunkSize,omitempty"`
+	InitPacketJunkHeader      []uint32 `json:"initPacketJunkHeader,omitempty"`
+	ResponsePacketJunkHeader  []uint32 `json:"responsePacketJunkHeader,omitempty"`
+	CookiePacketJunkHeader    []uint32 `json:"cookiePacketJunkHeader,omitempty"`
+	TransportPacketJunkHeader []uint32 `json:"transportPacketJunkHeader,omitempty"`
+
+	// Mimic packets: the decoys sent ahead of every handshake initiation, so
+	// the first bytes on the wire belong to another protocol. Without these
+	// fields the values never reach the proto and the core writes no i1..i5.
+	MimicPacket1 string `json:"mimicPacket1,omitempty"`
+	MimicPacket2 string `json:"mimicPacket2,omitempty"`
+	MimicPacket3 string `json:"mimicPacket3,omitempty"`
+	MimicPacket4 string `json:"mimicPacket4,omitempty"`
+	MimicPacket5 string `json:"mimicPacket5,omitempty"`
+
 	Level uint32 `json:"level"`
 	Email string `json:"email"`
 }
@@ -47,6 +67,22 @@ func (c *WireGuardPeerConfig) Build() (*wireguard.PeerConfig, error) {
 	if c.KeepAlive != 0 {
 		config.KeepAlive = strconv.FormatUint(uint64(c.KeepAlive), 10)
 	}
+	// AmneziaWG junk packet params.
+	config.JunkPacketCount = c.JunkPacketCount
+	config.JunkPacketMinSize = c.JunkPacketMinSize
+	config.JunkPacketMaxSize = c.JunkPacketMaxSize
+	config.InitPacketJunkSize = c.InitPacketJunkSize
+	config.ResponsePacketJunkSize = c.ResponsePacketJunkSize
+	config.InitPacketJunkHeader = c.InitPacketJunkHeader
+	config.ResponsePacketJunkHeader = c.ResponsePacketJunkHeader
+	config.CookiePacketJunkHeader = c.CookiePacketJunkHeader
+	config.TransportPacketJunkHeader = c.TransportPacketJunkHeader
+	// Mimic packets.
+	config.MimicPacket_1 = c.MimicPacket1
+	config.MimicPacket_2 = c.MimicPacket2
+	config.MimicPacket_3 = c.MimicPacket3
+	config.MimicPacket_4 = c.MimicPacket4
+	config.MimicPacket_5 = c.MimicPacket5
 	if c.AllowedIPs == nil {
 		config.AllowedIps = []string{"0.0.0.0/0", "::0/0"}
 	} else {

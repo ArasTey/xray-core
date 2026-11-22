@@ -211,8 +211,13 @@ type Config struct {
 	// keeps the default (unbounded); a positive value applies to uTLS and native
 	// Go TLS alike.
 	TlsHandshakeTimeout int32 `protobuf:"varint,24,opt,name=tls_handshake_timeout,json=tlsHandshakeTimeout,proto3" json:"tls_handshake_timeout,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Restored compatibility field: skip certificate verification entirely
+	// (legacy "allowInsecure" behavior from pre-26 cores). 23 was taken by
+	// upstream's use_system_ca and 24 by tls_handshake_timeout, so this field
+	// sits at 25.
+	InsecureSkipVerify bool `protobuf:"varint,25,opt,name=insecure_skip_verify,json=insecureSkipVerify,proto3" json:"insecure_skip_verify,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *Config) Reset() {
@@ -378,6 +383,13 @@ func (x *Config) GetTlsHandshakeTimeout() int32 {
 	return 0
 }
 
+func (x *Config) GetInsecureSkipVerify() bool {
+	if x != nil {
+		return x.InsecureSkipVerify
+	}
+	return false
+}
+
 var File_transport_internet_tls_config_proto protoreflect.FileDescriptor
 
 const file_transport_internet_tls_config_proto_rawDesc = "" +
@@ -396,7 +408,7 @@ const file_transport_internet_tls_config_proto_rawDesc = "" +
 	"\x05Usage\x12\x10\n" +
 	"\fENCIPHERMENT\x10\x00\x12\x14\n" +
 	"\x10AUTHORITY_VERIFY\x10\x01\x12\x13\n" +
-	"\x0fAUTHORITY_ISSUE\x10\x02\"\xfe\x06\n" +
+	"\x0fAUTHORITY_ISSUE\x10\x02\"\xb0\a\n" +
 	"\x06Config\x12J\n" +
 	"\vcertificate\x18\x02 \x03(\v2(.xray.transport.internet.tls.CertificateR\vcertificate\x12\x1f\n" +
 	"\vserver_name\x18\x03 \x01(\tR\n" +
@@ -419,7 +431,8 @@ const file_transport_internet_tls_config_proto_rawDesc = "" +
 	"\x13ech_socket_settings\x18\x15 \x01(\v2%.xray.transport.internet.SocketConfigR\x11echSocketSettings\x125\n" +
 	"\x17pinned_peer_cert_sha256\x18\x16 \x03(\fR\x14pinnedPeerCertSha256\x12\"\n" +
 	"\ruse_system_ca\x18\x17 \x01(\bR\vuseSystemCa\x122\n" +
-	"\x15tls_handshake_timeout\x18\x18 \x01(\x05R\x13tlsHandshakeTimeoutBs\n" +
+	"\x15tls_handshake_timeout\x18\x18 \x01(\x05R\x13tlsHandshakeTimeout\x120\n" +
+	"\x14insecure_skip_verify\x18\x19 \x01(\bR\x12insecureSkipVerifyBs\n" +
 	"\x1fcom.xray.transport.internet.tlsP\x01Z0github.com/xtls/xray-core/transport/internet/tls\xaa\x02\x1bXray.Transport.Internet.Tlsb\x06proto3"
 
 var (

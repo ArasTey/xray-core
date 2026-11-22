@@ -22,13 +22,89 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type DeviceConfig_DomainStrategy int32
+
+const (
+	DeviceConfig_FORCE_IP   DeviceConfig_DomainStrategy = 0
+	DeviceConfig_FORCE_IP4  DeviceConfig_DomainStrategy = 1
+	DeviceConfig_FORCE_IP6  DeviceConfig_DomainStrategy = 2
+	DeviceConfig_FORCE_IP46 DeviceConfig_DomainStrategy = 3
+	DeviceConfig_FORCE_IP64 DeviceConfig_DomainStrategy = 4
+)
+
+// Enum value maps for DeviceConfig_DomainStrategy.
+var (
+	DeviceConfig_DomainStrategy_name = map[int32]string{
+		0: "FORCE_IP",
+		1: "FORCE_IP4",
+		2: "FORCE_IP6",
+		3: "FORCE_IP46",
+		4: "FORCE_IP64",
+	}
+	DeviceConfig_DomainStrategy_value = map[string]int32{
+		"FORCE_IP":   0,
+		"FORCE_IP4":  1,
+		"FORCE_IP6":  2,
+		"FORCE_IP46": 3,
+		"FORCE_IP64": 4,
+	}
+)
+
+func (x DeviceConfig_DomainStrategy) Enum() *DeviceConfig_DomainStrategy {
+	p := new(DeviceConfig_DomainStrategy)
+	*p = x
+	return p
+}
+
+func (x DeviceConfig_DomainStrategy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DeviceConfig_DomainStrategy) Descriptor() protoreflect.EnumDescriptor {
+	return file_proxy_wireguard_config_proto_enumTypes[0].Descriptor()
+}
+
+func (DeviceConfig_DomainStrategy) Type() protoreflect.EnumType {
+	return &file_proxy_wireguard_config_proto_enumTypes[0]
+}
+
+func (x DeviceConfig_DomainStrategy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DeviceConfig_DomainStrategy.Descriptor instead.
+func (DeviceConfig_DomainStrategy) EnumDescriptor() ([]byte, []int) {
+	return file_proxy_wireguard_config_proto_rawDescGZIP(), []int{1, 0}
+}
+
 type PeerConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	PublicKey     string                 `protobuf:"bytes,1,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
-	PreSharedKey  string                 `protobuf:"bytes,2,opt,name=pre_shared_key,json=preSharedKey,proto3" json:"pre_shared_key,omitempty"`
-	Endpoint      string                 `protobuf:"bytes,3,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
-	KeepAlive     string                 `protobuf:"bytes,4,opt,name=keep_alive,json=keepAlive,proto3" json:"keep_alive,omitempty"`
-	AllowedIps    []string               `protobuf:"bytes,5,rep,name=allowed_ips,json=allowedIps,proto3" json:"allowed_ips,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	PublicKey    string                 `protobuf:"bytes,1,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
+	PreSharedKey string                 `protobuf:"bytes,2,opt,name=pre_shared_key,json=preSharedKey,proto3" json:"pre_shared_key,omitempty"`
+	Endpoint     string                 `protobuf:"bytes,3,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	KeepAlive    string                 `protobuf:"bytes,4,opt,name=keep_alive,json=keepAlive,proto3" json:"keep_alive,omitempty"`
+	AllowedIps   []string               `protobuf:"bytes,5,rep,name=allowed_ips,json=allowedIps,proto3" json:"allowed_ips,omitempty"`
+	// AmneziaWG obfuscation parameters (peer-specific).
+	JunkPacketCount           uint32   `protobuf:"varint,6,opt,name=junk_packet_count,json=junkPacketCount,proto3" json:"junk_packet_count,omitempty"`
+	JunkPacketMinSize         uint32   `protobuf:"varint,7,opt,name=junk_packet_min_size,json=junkPacketMinSize,proto3" json:"junk_packet_min_size,omitempty"`
+	JunkPacketMaxSize         uint32   `protobuf:"varint,8,opt,name=junk_packet_max_size,json=junkPacketMaxSize,proto3" json:"junk_packet_max_size,omitempty"`
+	InitPacketJunkSize        uint32   `protobuf:"varint,9,opt,name=init_packet_junk_size,json=initPacketJunkSize,proto3" json:"init_packet_junk_size,omitempty"`
+	ResponsePacketJunkSize    uint32   `protobuf:"varint,10,opt,name=response_packet_junk_size,json=responsePacketJunkSize,proto3" json:"response_packet_junk_size,omitempty"`
+	InitPacketJunkHeader      []uint32 `protobuf:"varint,11,rep,packed,name=init_packet_junk_header,json=initPacketJunkHeader,proto3" json:"init_packet_junk_header,omitempty"`
+	ResponsePacketJunkHeader  []uint32 `protobuf:"varint,12,rep,packed,name=response_packet_junk_header,json=responsePacketJunkHeader,proto3" json:"response_packet_junk_header,omitempty"`
+	CookiePacketJunkHeader    []uint32 `protobuf:"varint,13,rep,packed,name=cookie_packet_junk_header,json=cookiePacketJunkHeader,proto3" json:"cookie_packet_junk_header,omitempty"`
+	TransportPacketJunkHeader []uint32 `protobuf:"varint,14,rep,packed,name=transport_packet_junk_header,json=transportPacketJunkHeader,proto3" json:"transport_packet_junk_header,omitempty"`
+	// Mimic packets: fixed-shape decoys sent ahead of every handshake initiation, so
+	// the first bytes on the wire belong to a protocol that is not WireGuard. The
+	// value is an amneziawg obfuscation spec — "<b hex>" for literal bytes, "<t>" for
+	// a 4-byte timestamp, "<dz N>" for an N-byte size field, plus r/rc/rd fillers —
+	// e.g. "<b 4f5054494f4e73207369702d3a2e2e>" renders as "OPTIONS sip:..".
+	// Device-level in the AWG UAPI, exactly like the junk params above.
+	MimicPacket_1 string `protobuf:"bytes,15,opt,name=mimic_packet_1,json=mimicPacket1,proto3" json:"mimic_packet_1,omitempty"`
+	MimicPacket_2 string `protobuf:"bytes,16,opt,name=mimic_packet_2,json=mimicPacket2,proto3" json:"mimic_packet_2,omitempty"`
+	MimicPacket_3 string `protobuf:"bytes,17,opt,name=mimic_packet_3,json=mimicPacket3,proto3" json:"mimic_packet_3,omitempty"`
+	MimicPacket_4 string `protobuf:"bytes,18,opt,name=mimic_packet_4,json=mimicPacket4,proto3" json:"mimic_packet_4,omitempty"`
+	MimicPacket_5 string `protobuf:"bytes,19,opt,name=mimic_packet_5,json=mimicPacket5,proto3" json:"mimic_packet_5,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -98,19 +174,118 @@ func (x *PeerConfig) GetAllowedIps() []string {
 	return nil
 }
 
+func (x *PeerConfig) GetJunkPacketCount() uint32 {
+	if x != nil {
+		return x.JunkPacketCount
+	}
+	return 0
+}
+
+func (x *PeerConfig) GetJunkPacketMinSize() uint32 {
+	if x != nil {
+		return x.JunkPacketMinSize
+	}
+	return 0
+}
+
+func (x *PeerConfig) GetJunkPacketMaxSize() uint32 {
+	if x != nil {
+		return x.JunkPacketMaxSize
+	}
+	return 0
+}
+
+func (x *PeerConfig) GetInitPacketJunkSize() uint32 {
+	if x != nil {
+		return x.InitPacketJunkSize
+	}
+	return 0
+}
+
+func (x *PeerConfig) GetResponsePacketJunkSize() uint32 {
+	if x != nil {
+		return x.ResponsePacketJunkSize
+	}
+	return 0
+}
+
+func (x *PeerConfig) GetInitPacketJunkHeader() []uint32 {
+	if x != nil {
+		return x.InitPacketJunkHeader
+	}
+	return nil
+}
+
+func (x *PeerConfig) GetResponsePacketJunkHeader() []uint32 {
+	if x != nil {
+		return x.ResponsePacketJunkHeader
+	}
+	return nil
+}
+
+func (x *PeerConfig) GetCookiePacketJunkHeader() []uint32 {
+	if x != nil {
+		return x.CookiePacketJunkHeader
+	}
+	return nil
+}
+
+func (x *PeerConfig) GetTransportPacketJunkHeader() []uint32 {
+	if x != nil {
+		return x.TransportPacketJunkHeader
+	}
+	return nil
+}
+
+func (x *PeerConfig) GetMimicPacket_1() string {
+	if x != nil {
+		return x.MimicPacket_1
+	}
+	return ""
+}
+
+func (x *PeerConfig) GetMimicPacket_2() string {
+	if x != nil {
+		return x.MimicPacket_2
+	}
+	return ""
+}
+
+func (x *PeerConfig) GetMimicPacket_3() string {
+	if x != nil {
+		return x.MimicPacket_3
+	}
+	return ""
+}
+
+func (x *PeerConfig) GetMimicPacket_4() string {
+	if x != nil {
+		return x.MimicPacket_4
+	}
+	return ""
+}
+
+func (x *PeerConfig) GetMimicPacket_5() string {
+	if x != nil {
+		return x.MimicPacket_5
+	}
+	return ""
+}
+
 type DeviceConfig struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	SecretKey     string                 `protobuf:"bytes,1,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
-	Endpoint      []string               `protobuf:"bytes,2,rep,name=endpoint,proto3" json:"endpoint,omitempty"`
-	Peers         []*PeerConfig          `protobuf:"bytes,3,rep,name=peers,proto3" json:"peers,omitempty"`
-	Users         []*protocol.User       `protobuf:"bytes,5,rep,name=users,proto3" json:"users,omitempty"`
-	Mtu           int32                  `protobuf:"varint,4,opt,name=mtu,proto3" json:"mtu,omitempty"`
-	Reserved      []byte                 `protobuf:"bytes,6,opt,name=reserved,proto3" json:"reserved,omitempty"`
-	IsClient      bool                   `protobuf:"varint,8,opt,name=is_client,json=isClient,proto3" json:"is_client,omitempty"`
-	NoKernelTun   bool                   `protobuf:"varint,9,opt,name=no_kernel_tun,json=noKernelTun,proto3" json:"no_kernel_tun,omitempty"`
-	DNS           []string               `protobuf:"bytes,10,rep,name=DNS,proto3" json:"DNS,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState      `protogen:"open.v1"`
+	SecretKey      string                      `protobuf:"bytes,1,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"`
+	Endpoint       []string                    `protobuf:"bytes,2,rep,name=endpoint,proto3" json:"endpoint,omitempty"`
+	Peers          []*PeerConfig               `protobuf:"bytes,3,rep,name=peers,proto3" json:"peers,omitempty"`
+	Users          []*protocol.User            `protobuf:"bytes,5,rep,name=users,proto3" json:"users,omitempty"`
+	Mtu            int32                       `protobuf:"varint,4,opt,name=mtu,proto3" json:"mtu,omitempty"`
+	Reserved       []byte                      `protobuf:"bytes,6,opt,name=reserved,proto3" json:"reserved,omitempty"`
+	DomainStrategy DeviceConfig_DomainStrategy `protobuf:"varint,7,opt,name=domain_strategy,json=domainStrategy,proto3,enum=xray.proxy.wireguard.DeviceConfig_DomainStrategy" json:"domain_strategy,omitempty"`
+	IsClient       bool                        `protobuf:"varint,8,opt,name=is_client,json=isClient,proto3" json:"is_client,omitempty"`
+	NoKernelTun    bool                        `protobuf:"varint,9,opt,name=no_kernel_tun,json=noKernelTun,proto3" json:"no_kernel_tun,omitempty"`
+	DNS            []string                    `protobuf:"bytes,10,rep,name=DNS,proto3" json:"DNS,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *DeviceConfig) Reset() {
@@ -185,6 +360,13 @@ func (x *DeviceConfig) GetReserved() []byte {
 	return nil
 }
 
+func (x *DeviceConfig) GetDomainStrategy() DeviceConfig_DomainStrategy {
+	if x != nil {
+		return x.DomainStrategy
+	}
+	return DeviceConfig_FORCE_IP
+}
+
 func (x *DeviceConfig) GetIsClient() bool {
 	if x != nil {
 		return x.IsClient
@@ -210,7 +392,7 @@ var File_proxy_wireguard_config_proto protoreflect.FileDescriptor
 
 const file_proxy_wireguard_config_proto_rawDesc = "" +
 	"\n" +
-	"\x1cproxy/wireguard/config.proto\x12\x14xray.proxy.wireguard\x1a\x1acommon/protocol/user.proto\"\xad\x01\n" +
+	"\x1cproxy/wireguard/config.proto\x12\x14xray.proxy.wireguard\x1a\x1acommon/protocol/user.proto\"\xd9\x06\n" +
 	"\n" +
 	"PeerConfig\x12\x1d\n" +
 	"\n" +
@@ -220,7 +402,22 @@ const file_proxy_wireguard_config_proto_rawDesc = "" +
 	"\n" +
 	"keep_alive\x18\x04 \x01(\tR\tkeepAlive\x12\x1f\n" +
 	"\vallowed_ips\x18\x05 \x03(\tR\n" +
-	"allowedIps\"\xb4\x02\n" +
+	"allowedIps\x12*\n" +
+	"\x11junk_packet_count\x18\x06 \x01(\rR\x0fjunkPacketCount\x12/\n" +
+	"\x14junk_packet_min_size\x18\a \x01(\rR\x11junkPacketMinSize\x12/\n" +
+	"\x14junk_packet_max_size\x18\b \x01(\rR\x11junkPacketMaxSize\x121\n" +
+	"\x15init_packet_junk_size\x18\t \x01(\rR\x12initPacketJunkSize\x129\n" +
+	"\x19response_packet_junk_size\x18\n" +
+	" \x01(\rR\x16responsePacketJunkSize\x125\n" +
+	"\x17init_packet_junk_header\x18\v \x03(\rR\x14initPacketJunkHeader\x12=\n" +
+	"\x1bresponse_packet_junk_header\x18\f \x03(\rR\x18responsePacketJunkHeader\x129\n" +
+	"\x19cookie_packet_junk_header\x18\r \x03(\rR\x16cookiePacketJunkHeader\x12?\n" +
+	"\x1ctransport_packet_junk_header\x18\x0e \x03(\rR\x19transportPacketJunkHeader\x12$\n" +
+	"\x0emimic_packet_1\x18\x0f \x01(\tR\fmimicPacket1\x12$\n" +
+	"\x0emimic_packet_2\x18\x10 \x01(\tR\fmimicPacket2\x12$\n" +
+	"\x0emimic_packet_3\x18\x11 \x01(\tR\fmimicPacket3\x12$\n" +
+	"\x0emimic_packet_4\x18\x12 \x01(\tR\fmimicPacket4\x12$\n" +
+	"\x0emimic_packet_5\x18\x13 \x01(\tR\fmimicPacket5\"\xee\x03\n" +
 	"\fDeviceConfig\x12\x1d\n" +
 	"\n" +
 	"secret_key\x18\x01 \x01(\tR\tsecretKey\x12\x1a\n" +
@@ -228,11 +425,20 @@ const file_proxy_wireguard_config_proto_rawDesc = "" +
 	"\x05peers\x18\x03 \x03(\v2 .xray.proxy.wireguard.PeerConfigR\x05peers\x120\n" +
 	"\x05users\x18\x05 \x03(\v2\x1a.xray.common.protocol.UserR\x05users\x12\x10\n" +
 	"\x03mtu\x18\x04 \x01(\x05R\x03mtu\x12\x1a\n" +
-	"\breserved\x18\x06 \x01(\fR\breserved\x12\x1b\n" +
+	"\breserved\x18\x06 \x01(\fR\breserved\x12Z\n" +
+	"\x0fdomain_strategy\x18\a \x01(\x0e21.xray.proxy.wireguard.DeviceConfig.DomainStrategyR\x0edomainStrategy\x12\x1b\n" +
 	"\tis_client\x18\b \x01(\bR\bisClient\x12\"\n" +
 	"\rno_kernel_tun\x18\t \x01(\bR\vnoKernelTun\x12\x10\n" +
 	"\x03DNS\x18\n" +
-	" \x03(\tR\x03DNSB^\n" +
+	" \x03(\tR\x03DNS\"\\\n" +
+	"\x0eDomainStrategy\x12\f\n" +
+	"\bFORCE_IP\x10\x00\x12\r\n" +
+	"\tFORCE_IP4\x10\x01\x12\r\n" +
+	"\tFORCE_IP6\x10\x02\x12\x0e\n" +
+	"\n" +
+	"FORCE_IP46\x10\x03\x12\x0e\n" +
+	"\n" +
+	"FORCE_IP64\x10\x04B^\n" +
 	"\x18com.xray.proxy.wireguardP\x01Z)github.com/xtls/xray-core/proxy/wireguard\xaa\x02\x14Xray.Proxy.WireGuardb\x06proto3"
 
 var (
@@ -247,20 +453,23 @@ func file_proxy_wireguard_config_proto_rawDescGZIP() []byte {
 	return file_proxy_wireguard_config_proto_rawDescData
 }
 
+var file_proxy_wireguard_config_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_proxy_wireguard_config_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proxy_wireguard_config_proto_goTypes = []any{
-	(*PeerConfig)(nil),    // 0: xray.proxy.wireguard.PeerConfig
-	(*DeviceConfig)(nil),  // 1: xray.proxy.wireguard.DeviceConfig
-	(*protocol.User)(nil), // 2: xray.common.protocol.User
+	(DeviceConfig_DomainStrategy)(0), // 0: xray.proxy.wireguard.DeviceConfig.DomainStrategy
+	(*PeerConfig)(nil),               // 1: xray.proxy.wireguard.PeerConfig
+	(*DeviceConfig)(nil),             // 2: xray.proxy.wireguard.DeviceConfig
+	(*protocol.User)(nil),            // 3: xray.common.protocol.User
 }
 var file_proxy_wireguard_config_proto_depIdxs = []int32{
-	0, // 0: xray.proxy.wireguard.DeviceConfig.peers:type_name -> xray.proxy.wireguard.PeerConfig
-	2, // 1: xray.proxy.wireguard.DeviceConfig.users:type_name -> xray.common.protocol.User
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 0: xray.proxy.wireguard.DeviceConfig.peers:type_name -> xray.proxy.wireguard.PeerConfig
+	3, // 1: xray.proxy.wireguard.DeviceConfig.users:type_name -> xray.common.protocol.User
+	0, // 2: xray.proxy.wireguard.DeviceConfig.domain_strategy:type_name -> xray.proxy.wireguard.DeviceConfig.DomainStrategy
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_proxy_wireguard_config_proto_init() }
@@ -273,13 +482,14 @@ func file_proxy_wireguard_config_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proxy_wireguard_config_proto_rawDesc), len(file_proxy_wireguard_config_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_proxy_wireguard_config_proto_goTypes,
 		DependencyIndexes: file_proxy_wireguard_config_proto_depIdxs,
+		EnumInfos:         file_proxy_wireguard_config_proto_enumTypes,
 		MessageInfos:      file_proxy_wireguard_config_proto_msgTypes,
 	}.Build()
 	File_proxy_wireguard_config_proto = out.File

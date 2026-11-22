@@ -14,9 +14,37 @@ message PeerConfig {
   string endpoint = 3;
   string keep_alive = 4;
   repeated string allowed_ips = 5;
+  // AmneziaWG obfuscation parameters (peer-specific).
+  uint32 junk_packet_count = 6;
+  uint32 junk_packet_min_size = 7;
+  uint32 junk_packet_max_size = 8;
+  uint32 init_packet_junk_size = 9;
+  uint32 response_packet_junk_size = 10;
+  repeated uint32 init_packet_junk_header = 11;
+  repeated uint32 response_packet_junk_header = 12;
+  repeated uint32 cookie_packet_junk_header = 13;
+  repeated uint32 transport_packet_junk_header = 14;
+  // Mimic packets: fixed-shape decoys sent ahead of every handshake initiation, so
+  // the first bytes on the wire belong to a protocol that is not WireGuard. The
+  // value is an amneziawg obfuscation spec — "<b hex>" for literal bytes, "<t>" for
+  // a 4-byte timestamp, "<dz N>" for an N-byte size field, plus r/rc/rd fillers —
+  // e.g. "<b 4f5054494f4e73207369702d3a2e2e>" renders as "OPTIONS sip:..".
+  // Device-level in the AWG UAPI, exactly like the junk params above.
+  string mimic_packet_1 = 15;
+  string mimic_packet_2 = 16;
+  string mimic_packet_3 = 17;
+  string mimic_packet_4 = 18;
+  string mimic_packet_5 = 19;
 }
 
 message DeviceConfig {
+  enum DomainStrategy {
+    FORCE_IP = 0;
+    FORCE_IP4 = 1;
+    FORCE_IP6 = 2;
+    FORCE_IP46 = 3;
+    FORCE_IP64 = 4;
+  }
   string secret_key = 1;
   repeated string endpoint = 2;
   repeated PeerConfig peers = 3;
@@ -24,6 +52,7 @@ message DeviceConfig {
   int32 mtu = 4;
 
   bytes reserved = 6;
+  DomainStrategy domain_strategy = 7;
   bool is_client = 8;
   bool no_kernel_tun = 9;
   repeated string DNS = 10;
